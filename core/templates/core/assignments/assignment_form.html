@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if assignment %}Edit Assignment{% else %}Create Assignment{% endif %}{% endblock %}
+
+{% block content %}
+<div class="mb-30">
+    <a href="{% if assignment %}{% url 'course_detail' assignment.course.pk %}{% else %}{% url 'course_list' %}{% endif %}" style="color: #667eea; text-decoration: none;">← Back</a>
+</div>
+
+<h2>{% if assignment %}Edit Assignment{% else %}Create New Assignment{% endif %}</h2>
+
+<form method="POST">
+    {% csrf_token %}
+    
+    <div class="form-group">
+        <label for="id_course">Course: *</label>
+        <select name="course" id="id_course" required>
+            <option value="">-- Select a Course --</option>
+            {% for course in courses %}
+                <option value="{{ course.pk }}" {% if assignment and assignment.course.pk == course.pk %}selected{% endif %}>
+                    {{ course.code }} - {{ course.name }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+    
+    <div class="form-group">
+        <label for="id_title">Assignment Title: *</label>
+        <input type="text" name="title" id="id_title" value="{{ assignment.title|default:'' }}" required placeholder="e.g., Final Project">
+    </div>
+    
+    <div class="form-group">
+        <label for="id_due_date">Due Date: *</label>
+        <input type="date" name="due_date" id="id_due_date" value="{{ assignment.due_date|date:'Y-m-d'|default:'' }}" required>
+    </div>
+    
+    <div class="form-group">
+        <label for="id_description">Description:</label>
+        <textarea name="description" id="id_description" placeholder="Enter assignment details...">{{ assignment.description|default:'' }}</textarea>
+    </div>
+    
+    <div class="form-group">
+        <label>
+            <input type="checkbox" name="is_completed" {% if assignment.is_completed %}checked{% endif %}>
+            Mark as completed
+        </label>
+    </div>
+    
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">
+            {% if assignment %}Update Assignment{% else %}Create Assignment{% endif %}
+        </button>
+        <a href="{% if assignment %}{% url 'course_detail' assignment.course.pk %}{% else %}{% url 'course_list' %}{% endif %}" class="btn btn-secondary">Cancel</a>
+    </div>
+</form>
+
+<script>
+    const dateInput = document.getElementById('id_due_date');
+    const today = new Date().toISOString().split('T')[0];
+    
+    dateInput.addEventListener('change', function() {
+        if (this.value < today) {
+            this.style.borderColor = 'orange';
+            alert('Warning: This date is in the past.');
+        } else {
+            this.style.borderColor = '';
+        }
+    });
+</script>
+{% endblock %}

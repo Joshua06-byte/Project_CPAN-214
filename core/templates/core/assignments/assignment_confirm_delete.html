@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete Assignment{% endblock %}
+
+{% block content %}
+<div class="mb-30">
+    <a href="{% url 'course_detail' assignment.course.pk %}" style="color: #667eea; text-decoration: none;">← Back to Course</a>
+</div>
+
+<div class="card" style="max-width: 600px; margin: 0 auto;">
+    <div class="card-header" style="background: #dc3545;">
+        <h2 style="color: white; margin: 0;">⚠️ Confirm Deletion</h2>
+    </div>
+    
+    <div class="card-body">
+        <p style="font-size: 18px; margin-bottom: 20px;">
+            Are you sure you want to delete the assignment <strong>"{{ assignment.title }}"</strong>?
+        </p>
+        
+        <div class="alert alert-warning">
+            <strong>Note:</strong> This will also delete any associated study logs.
+        </div>
+        
+        <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin-top: 20px;">
+            <p><strong>Assignment:</strong> {{ assignment.title }}</p>
+            <p><strong>Course:</strong> {{ assignment.course.name }}</p>
+            <p><strong>Due Date:</strong> {{ assignment.due_date }}</p>
+            <p><strong>Status:</strong> 
+                {% if assignment.is_completed %}
+                    <span class="badge badge-success">Completed</span>
+                {% else %}
+                    <span class="badge badge-warning">Pending</span>
+                {% endif %}
+            </p>
+        </div>
+    </div>
+    
+    <div class="card-footer">
+        <form method="POST" style="display: inline;">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Yes, Delete Assignment</button>
+        </form>
+        <a href="{% url 'course_detail' assignment.course.pk %}" class="btn btn-secondary">Cancel</a>
+    </div>
+</div>
+{% endblock %}

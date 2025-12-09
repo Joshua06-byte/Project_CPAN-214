@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ course.name }}{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 30px;">
+    <a href="{% url 'course_list' %}" style="color: #667eea; text-decoration: none;">← Back to Courses</a>
+</div>
+
+<div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 10px; margin-bottom: 30px;">
+    <h2 style="font-size: 2em; margin-bottom: 10px;">{{ course.name }}</h2>
+    <p style="font-size: 1.2em; opacity: 0.9;">{{ course.code }}</p>
+    {% if course.instructor %}
+        <p style="margin-top: 10px;"><strong>Instructor:</strong> {{ course.instructor }}</p>
+    {% endif %}
+    {% if course.description %}
+        <p style="margin-top: 15px; opacity: 0.9;">{{ course.description }}</p>
+    {% endif %}
+    
+    <div style="margin-top: 20px;">
+        <span style="background: rgba(255,255,255,0.2); padding: 10px 20px; border-radius: 5px; margin-right: 15px;">
+            📝 {{ assignments|length }} Assignment{{ assignments|length|pluralize }}
+        </span>
+        <span style="background: rgba(255,255,255,0.2); padding: 10px 20px; border-radius: 5px;">
+            ⏱️ <span id="total-study-time">{{ total_duration }} minutes</span> studied
+        </span>
+    </div>
+</div>
+
+<h3 style="margin-top: 30px; color: #667eea;">Assignments</h3>
+<a href="{% url 'assignment_create' %}?course={{ course.pk }}" class="btn" style="margin-bottom: 15px;">Add Assignment</a>
+
+{% if assignments %}
+    <table>
+        <thead>
+            <tr>
+                <th>✓</th>
+                <th>Title</th>
+                <th>Due Date</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for assignment in assignments %}
+                <tr class="assignment-item {% if assignment.is_completed %}completed{% endif %}">
+                    <td>
+                        <input type="checkbox" class="completion-toggle" {% if assignment.is_completed %}checked{% endif %} disabled>
+                    </td>
+                    <td>{{ assignment.title }}</td>
+                    <td class="due-date">{{ assignment.due_date }}</td>
+                    <td>
+                        {% if assignment.is_completed %}
+                            <span style="color: green; font-weight: bold;">✓ Complete</span>
+                        {% else %}
+                            <span style="color: orange; font-weight: bold;">⏳ Pending</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'assignment_edit' assignment.pk %}" class="btn-secondary btn" style="font-size: 12px; padding: 5px 10px; margin-right: 5px;">Edit</a>
+                        <a href="{% url 'assignment_delete' assignment.pk %}" class="btn-danger btn delete-btn" style="font-size: 12px; padding: 5px 10px;">Delete</a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p style="color: #6c757d; padding: 20px; background: #f8f9fa; border-radius: 5px;">No assignments yet.</p>
+{% endif %}
+
+<h3 style="margin-top: 40px; color: #667eea;">Study Logs</h3>
+<a href="{% url 'studylog_create' %}?course={{ course.pk }}" class="btn" style="margin-bottom: 15px;">Add Study Log</a>
+
+{% if study_logs %}
+    <table>
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Duration (minutes)</th>
+                <th>Assignment</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for log in study_logs %}
+                <tr>
+                    <td>{{ log.date }}</td>
+                    <td class="study-duration">{{ log.duration }}</td>
+                    <td>{{ log.assignment.title|default:"General Study" }}</td>
+                    <td>
+                        <a href="{% url 'studylog_edit' log.pk %}" class="btn-secondary btn" style="font-size: 12px; padding: 5px 10px; margin-right: 5px;">Edit</a>
+                        <a href="{% url 'studylog_delete' log.pk %}" class="btn-danger btn delete-btn" style="font-size: 12px; padding: 5px 10px;">Delete</a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p style="color: #6c757d; padding: 20px; background: #f8f9fa; border-radius: 5px;">No study logs yet.</p>
+{% endif %}
+
+<div style="margin-top: 40px;">
+    <a href="{% url 'course_edit' course.pk %}" class="btn-secondary btn" style="margin-right: 10px;">Edit Course</a>
+    <a href="{% url 'course_delete' course.pk %}" class="btn-danger btn delete-btn">Delete Course</a>
+</div>
+{% endblock %}

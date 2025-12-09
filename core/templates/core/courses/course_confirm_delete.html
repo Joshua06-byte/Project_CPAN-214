@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete Course{% endblock %}
+
+{% block content %}
+<div class="mb-30">
+    <a href="{% url 'course_detail' course.pk %}" style="color: #667eea; text-decoration: none;">← Back to Course</a>
+</div>
+
+<div class="card" style="max-width: 600px; margin: 0 auto;">
+    <div class="card-header" style="background: #dc3545;">
+        <h2 style="color: white; margin: 0;">⚠️ Confirm Deletion</h2>
+    </div>
+    
+    <div class="card-body">
+        <p style="font-size: 18px; margin-bottom: 20px;">
+            Are you sure you want to delete the course <strong>"{{ course.name }}"</strong>?
+        </p>
+        
+        <div class="alert alert-danger">
+            <strong>Warning:</strong> This action cannot be undone. All associated assignments and study logs will also be deleted.
+        </div>
+        
+        <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin-top: 20px;">
+            <p><strong>Course:</strong> {{ course.name }}</p>
+            <p><strong>Code:</strong> {{ course.code }}</p>
+            {% if course.instructor %}
+                <p><strong>Instructor:</strong> {{ course.instructor }}</p>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="card-footer">
+        <form method="POST" style="display: inline;">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Yes, Delete Course</button>
+        </form>
+        <a href="{% url 'course_detail' course.pk %}" class="btn btn-secondary">Cancel</a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if studylog %}Edit Study Log{% else %}Log Study Time{% endif %}{% endblock %}
+
+{% block content %}
+<div class="mb-30">
+    <a href="{% if studylog %}{% url 'course_detail' studylog.course.pk %}{% else %}{% url 'course_list' %}{% endif %}" style="color: #667eea; text-decoration: none;">← Back</a>
+</div>
+
+<h2>{% if studylog %}Edit Study Log{% else %}Log Study Time{% endif %}</h2>
+
+<form method="POST">
+    {% csrf_token %}
+    
+    <div class="form-group">
+        <label for="id_course">Course: *</label>
+        <select name="course" id="id_course" required>
+            <option value="">-- Select a Course --</option>
+            {% for course in courses %}
+                <option value="{{ course.pk }}" {% if studylog and studylog.course.pk == course.pk %}selected{% endif %}>
+                    {{ course.code }} - {{ course.name }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+    
+    <div class="form-group">
+        <label for="id_assignment">Assignment (Optional):</label>
+        <select name="assignment" id="id_assignment">
+            <option value="">-- General Study (No Specific Assignment) --</option>
+            {% for assignment in assignments %}
+                <option value="{{ assignment.pk }}" 
+                        data-course-id="{{ assignment.course.pk }}"
+                        {% if studylog and studylog.assignment and studylog.assignment.pk == assignment.pk %}selected{% endif %}>
+                    {{ assignment.course.code }} - {{ assignment.title }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+    
+    <div class="form-group">
+        <label for="id_date">Date: *</label>
+        <input type="date" name="date" id="id_date" value="{{ studylog.date|date:'Y-m-d'|default:'' }}" required>
+    </div>
+    
+    <div class="form-group">
+        <label for="id_duration">Duration (minutes): *</label>
+        <input type="number" name="duration" id="id_duration" value="{{ studylog.duration|default:'' }}" required min="1" placeholder="e.g., 90">
+        <small style="color: #6c757d; display: block; margin-top: 5px;">
+            How many minutes did you study?
+        </small>
+    </div>
+    
+    <div style="background: #e7f3ff; padding: 15px; border-radius: 5px; margin-top: 20px;">
+        <p style="margin: 0;">
+            <strong>💡 Quick conversions:</strong><br>
+            30 minutes = 0.5 hours | 60 minutes = 1 hour | 90 minutes = 1.5 hours | 120 minutes = 2 hours
+        </p>
+    </div>
+    
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">
+            {% if studylog %}Update Study Log{% else %}Log Study Time{% endif %}
+        </button>
+        <a href="{% if studylog %}{% url 'course_detail' studylog.course.pk %}{% else %}{% url 'course_list' %}{% endif %}" class="btn btn-secondary">Cancel</a>
+    </div>
+</form>
+
+<script>
+    const dateInput = document.getElementById('id_date');
+    if (!dateInput.value) {
+        dateInput.value = new Date().toISOString().split('T')[0];
+    }
+    
+    const courseSelect = document.getElementById('id_course');
+    const assignmentSelect = document.getElementById('id_assignment');
+    
+    function filterAssignments() {
+        const selectedCourseId = courseSelect.value;
+        const allOptions = Array.from(assignmentSelect.options);
+        
+        assignmentSelect.innerHTML = '<option value="">-- General Study (No Specific Assignment) --</option>';
+        
+        allOptions.forEach(option => {
+            if (option.value && option.dataset.courseId === selectedCourseId) {
+                assignmentSelect.appendChild(option);
+            }
+        });
+    }
+    
+    courseSelect.addEventListener('change', filterAssignments);
+    
+    if (courseSelect.value) {
+        filterAssignments();
+    }
+    
+    const durationInput = document.getElementById('id_duration');
+    durationInput.addEventListener('input', function() {
+        const minutes = parseInt(this.value) || 0;
+        const hours = (minutes / 60).toFixed(2);
+        
+        let hint = this.nextElementSibling?.nextElementSibling;
+        if (!hint || !hint.classList.contains('duration-hint')) {
+            hint = document.createElement('small');
+            hint.classList.add('duration-hint');
+            hint.style.cssText = 'display: block; margin-top: 5px; color: #667eea; font-weight: bold;';
+            this.parentElement.appendChild(hint);
+        }
+        
+        if (minutes > 0) {
+            hint.textContent = `That's ${hours} hours of study time! 📚`;
+        } else {
+            hint.textContent = '';
+        }
+    });
+</script>
+{% endblock %}

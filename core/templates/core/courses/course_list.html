@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}My Courses{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <h2>My Courses</h2>
+    <input type="text" id="course-search" placeholder="Search courses..." style="width: 300px;">
+</div>
+
+{% if courses %}
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;">
+        {% for course in courses %}
+            <div class="course-item" style="background: #f8f9fa; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                <h3 class="course-name" style="color: #667eea; margin-bottom: 10px;">{{ course.name }}</h3>
+                <p class="course-code" style="color: #6c757d; font-size: 14px; margin-bottom: 10px;">{{ course.code }}</p>
+                
+                {% if course.instructor %}
+                    <p style="margin-bottom: 10px;"><strong>Instructor:</strong> {{ course.instructor }}</p>
+                {% endif %}
+                
+                {% if course.description %}
+                    <p style="color: #666; margin-bottom: 15px;">{{ course.description|truncatewords:20 }}</p>
+                {% endif %}
+                
+                <div style="margin-top: 15px;">
+                    <a href="{% url 'course_detail' course.pk %}" class="btn" style="font-size: 14px; padding: 8px 15px; margin-right: 10px;">View Details</a>
+                    <a href="{% url 'course_edit' course.pk %}" class="btn-secondary btn" style="font-size: 14px; padding: 8px 15px; margin-right: 10px;">Edit</a>
+                    <a href="{% url 'course_delete' course.pk %}" class="btn-danger btn delete-btn" style="font-size: 14px; padding: 8px 15px;">Delete</a>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div style="text-align: center; padding: 50px; background: #f8f9fa; border-radius: 8px;">
+        <p style="font-size: 18px; color: #6c757d; margin-bottom: 20px;">No courses yet. Create your first course to get started!</p>
+        <a href="{% url 'course_create' %}" class="btn">Create Course</a>
+    </div>
+{% endif %}
+{% endblock %}
