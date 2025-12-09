@@ -12,7 +12,7 @@ class Course(models.Model):
         unique_together = ('user', 'code')  # Each user can reuse codes
 
     def jsonFriendly(self):
-        """Return a dictionary representation for JSON responses"""
+       
         return {
             'id': self.id,
             'user_id': self.user.id,
